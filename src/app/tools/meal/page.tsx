@@ -468,9 +468,9 @@ export default function MealToolPage() {
              🎯 Personalized
            </span>
          </div>
-        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-4">
-          Smart Meal Planner
-        </h1>
+                 <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-green-600 mb-4">
+           Smart Meal Planner
+         </h1>
         <p className="text-lg text-foreground/70 max-w-2xl mx-auto leading-relaxed">
           Create personalized meal plans with detailed nutritional information, recipes, and dietary preferences tailored to your diabetes management needs.
         </p>
@@ -487,8 +487,8 @@ export default function MealToolPage() {
       <div className="mt-8 max-w-5xl mx-auto">
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-3xl border border-green-200/50 dark:border-green-800/30 p-8 shadow-xl">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Personalize Your Plan</h2>
-            <p className="text-gray-600 dark:text-gray-400">Tell us about yourself to get the perfect meal recommendations</p>
+                         <h2 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">Personalize Your Plan</h2>
+                         <p className="text-black dark:text-white">Tell us about yourself to get the perfect meal recommendations</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -582,7 +582,7 @@ export default function MealToolPage() {
 
         <div className="flex items-center justify-center gap-4 mt-8">
           <button
-            className="group relative px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="group relative px-8 py-4 bg-white text-gray-700 font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none hover:bg-gradient-to-r hover:from-green-500 hover:to-emerald-500 hover:text-white"
             disabled={!canGenerate}
             onClick={() => setPlan(generateMealPlan(age, severity, dietaryPreferences))}
           >
@@ -591,7 +591,6 @@ export default function MealToolPage() {
               Generate Meal Plan
               <span className="text-lg">✨</span>
             </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
           </button>
           
           {plan && (
@@ -629,7 +628,7 @@ export default function MealToolPage() {
              <div className="flex items-center justify-between mb-4">
                <div className="flex-1"></div>
                <div className="flex-1">
-                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Your Saved Plans</h2>
+                 <h2 className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">Your Saved Plans</h2>
                  <p className="text-gray-600 dark:text-gray-400">Access your previously generated meal plans</p>
                </div>
                <div className="flex-1 flex justify-end">
@@ -703,7 +702,7 @@ export default function MealToolPage() {
       {plan && (
         <div className="mt-12">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">Your Personalized Meal Plan</h2>
+                         <h2 className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">Your Personalized Meal Plan</h2>
             <p className="text-gray-600 dark:text-gray-400">Tailored to your glucose levels and dietary preferences</p>
             
                          <div className="flex items-center justify-center gap-4 mt-6">
@@ -728,7 +727,7 @@ export default function MealToolPage() {
                      {index === 0 ? '🌅' : index === 1 ? '☀️' : '🌙'}
                    </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">{group.title}</h2>
+                                         <h2 className="text-xl font-bold text-green-600 dark:text-green-400">{group.title}</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {group.items.length} delicious options
                     </p>
@@ -827,7 +826,7 @@ export default function MealToolPage() {
                     👨‍🍳
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{selectedMeal.name}</h2>
+                                         <h2 className="text-2xl font-bold text-green-600 dark:text-green-400">{selectedMeal.name}</h2>
                     <p className="text-gray-500 dark:text-gray-400">Complete recipe with nutritional details</p>
                   </div>
                 </div>
@@ -847,9 +846,9 @@ export default function MealToolPage() {
                 <div className="space-y-6">
                                      {/* Nutritional Information */}
                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6">
-                     <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                       📊 Nutritional Information
-                     </h3>
+                                           <h3 className="text-lg font-bold text-green-600 dark:text-green-400 mb-4 flex items-center gap-2">
+                        📊 Nutritional Information
+                      </h3>
                      <div className="grid grid-cols-2 gap-4">
                        <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-xl">
                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">{selectedMeal.calories}</div>
@@ -876,9 +875,9 @@ export default function MealToolPage() {
                    
                    {/* Details */}
                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6">
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                      ⚙️ Details
-                    </h3>
+                                         <h3 className="text-lg font-bold text-green-600 dark:text-green-400 mb-4 flex items-center gap-2">
+                       ⚙️ Details
+                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl">
                         <span className="text-gray-600 dark:text-gray-400">Prep Time</span>
@@ -900,9 +899,9 @@ export default function MealToolPage() {
                 <div className="space-y-6">
                                      {/* Ingredients */}
                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6">
-                     <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                       🛒 Ingredients
-                     </h3>
+                                           <h3 className="text-lg font-bold text-green-600 dark:text-green-400 mb-4 flex items-center gap-2">
+                        🛒 Ingredients
+                      </h3>
                      <ul className="space-y-3">
                        {selectedMeal.ingredients.map((ingredient, index) => (
                          <li key={index} className="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl">
@@ -917,9 +916,9 @@ export default function MealToolPage() {
                    
                    {/* Instructions */}
                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6">
-                     <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center gap-2">
-                       📝 Instructions
-                     </h3>
+                                           <h3 className="text-lg font-bold text-green-600 dark:text-green-400 mb-4 flex items-center gap-2">
+                        📝 Instructions
+                      </h3>
                      <ol className="space-y-3">
                        {selectedMeal.instructions.map((instruction, index) => (
                          <li key={index} className="flex gap-3 p-3 bg-white dark:bg-gray-800 rounded-xl">

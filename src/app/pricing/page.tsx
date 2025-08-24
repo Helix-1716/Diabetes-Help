@@ -53,7 +53,7 @@ export default function PricingPage() {
             <p className="mt-1 text-sm text-foreground/70">Basic diabetes management tools</p>
           </div>
           <div className="mb-6">
-            <div className="text-3xl font-bold">$0</div>
+            <div className="text-3xl font-bold">₹0</div>
             <div className="text-sm text-foreground/60">Forever free</div>
           </div>
           <ul className="space-y-3 mb-6">
@@ -101,11 +101,11 @@ export default function PricingPage() {
           </div>
           <div className="mb-6">
             <div className="text-3xl font-bold">
-              {billingCycle === "monthly" ? "$9.99" : `$${getYearlyPrice(9.99)}`}
+              {billingCycle === "monthly" ? "₹799" : `₹${getYearlyPrice(799)}`}
               <span className="text-sm font-normal text-foreground/60">{billingCycle === "monthly" ? "/month" : "/year"}</span>
             </div>
             {billingCycle === "yearly" && (
-              <div className="text-sm text-green-500">Save $19.18 per year</div>
+              <div className="text-sm text-green-500">Save ₹1,534 per year</div>
             )}
           </div>
           <ul className="space-y-3 mb-6">
@@ -156,11 +156,11 @@ export default function PricingPage() {
           </div>
           <div className="mb-6">
             <div className="text-3xl font-bold">
-              {billingCycle === "monthly" ? "$19.99" : `$${getYearlyPrice(19.99)}`}
+              {billingCycle === "monthly" ? "₹1,599" : `₹${getYearlyPrice(1599)}`}
               <span className="text-sm font-normal text-foreground/60">{billingCycle === "monthly" ? "/month" : "/year"}</span>
             </div>
             {billingCycle === "yearly" && (
-              <div className="text-sm text-green-500">Save $38.38 per year</div>
+              <div className="text-sm text-green-500">Save ₹3,071 per year</div>
             )}
           </div>
           <ul className="space-y-3 mb-6">
