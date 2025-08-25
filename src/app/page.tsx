@@ -66,7 +66,7 @@ export default function Home() {
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[{
             label: "Fasting / Before meal",
-            value: "70–99 mg/dL",
+            value: "70–110 mg/dL",
             note: "Ideal resting range"
           }, {
             label: "1–2 hrs after meal",
