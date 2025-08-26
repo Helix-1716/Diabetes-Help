@@ -141,7 +141,7 @@ export default function PricingPage() {
             </li>
           </ul>
           <Link 
-            href="#subscribe" 
+            href={`/payment?plan=pro&cycle=${billingCycle}`} 
             className="w-full rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium h-10 flex items-center justify-center hover:from-purple-700 hover:to-indigo-700 transition-colors btn-shine"
           >
             Subscribe Now
@@ -196,7 +196,7 @@ export default function PricingPage() {
             </li>
           </ul>
           <Link 
-            href="#subscribe-premium" 
+            href={`/payment?plan=premium&cycle=${billingCycle}`} 
             className="w-full rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-medium h-10 flex items-center justify-center hover:from-indigo-700 hover:to-blue-700 transition-colors btn-shine"
           >
             Subscribe Now
@@ -239,7 +239,7 @@ export default function PricingPage() {
           
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Link 
-              href="#subscribe" 
+              href={`/payment?plan=pro&cycle=${billingCycle}`} 
               className="rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-medium px-6 py-3 flex items-center justify-center hover:from-purple-700 hover:to-indigo-700 transition-colors btn-shine"
             >
               Get Started with Pro

@@ -37,19 +37,95 @@ export default function DietAIPlanPage() {
   const [healthMetrics, setHealthMetrics] = useState<HealthMetrics | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const idCounter = useRef(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [patientName, setPatientName] = useState<string>("");
+
+  const allowedMimeTypes = [
+    "application/pdf",
+    "image/jpeg",
+    "image/png",
+  ];
+
+  const allowedExtensions = [".pdf", ".jpg", ".jpeg", ".png"];
+
+  const medicalKeywords = [
+    "report",
+    "lab",
+    "test",
+    "cbc",
+    "lipid",
+    "hba1c",
+    "prescription",
+    "rx",
+    "scan",
+    "radiology",
+    "imaging",
+    "blood",
+    "glucose",
+    "doctor",
+    "medical",
+  ];
+
+  const isMedicalDocument = (file: File) => {
+    const nameLower = file.name.toLowerCase();
+    const hasAllowedExt = allowedExtensions.some((ext) => nameLower.endsWith(ext));
+    const hasAllowedMime = allowedMimeTypes.includes(file.type);
+    const hasMedicalKeyword = medicalKeywords.some((kw) => nameLower.includes(kw));
+
+    return (hasAllowedExt || hasAllowedMime) && hasMedicalKeyword;
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
-    const newReports: HealthReport[] = Array.from(files).map((file) => ({
-      id: `report-${++idCounter.current}`,
-      name: file.name,
-      uploadedAt: new Date().toLocaleString(),
-      size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-    }));
+    const accepted: HealthReport[] = [];
+    const rejected: string[] = [];
 
-    setUploadedReports((prev) => [...prev, ...newReports]);
+    Array.from(files).forEach((file) => {
+      if (isMedicalDocument(file)) {
+        accepted.push({
+          id: `report-${++idCounter.current}`,
+          name: file.name,
+          uploadedAt: new Date().toLocaleString(),
+          size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+        });
+
+        // Try to infer patient name from the first accepted file name
+        if (!patientName) {
+          const inferred = inferNameFromFilename(file.name);
+          if (inferred) setPatientName(inferred);
+        }
+      } else {
+        rejected.push(file.name);
+      }
+    });
+
+    if (rejected.length > 0) {
+      setUploadError(`Only medical PDFs or images are allowed. Rejected: ${rejected.slice(0, 3).join(", ")}${rejected.length > 3 ? ` and ${rejected.length - 3} more` : ""}`);
+    } else {
+      setUploadError(null);
+    }
+
+    if (accepted.length > 0) {
+      setUploadedReports((prev) => [...prev, ...accepted]);
+    }
+  };
+
+  const inferNameFromFilename = (filename: string) => {
+    const base = filename.replace(/\.[^.]+$/, "");
+    // Split by common separators and remove medical keywords and numbers
+    const parts = base.split(/[-_\s]+/).filter(Boolean);
+    const cleaned = parts
+      .filter((p) => !/\d/.test(p))
+      .filter((p) => !medicalKeywords.includes(p.toLowerCase()))
+      .filter((p) => !["report", "lab", "test", "final", "result"].includes(p.toLowerCase()));
+    if (cleaned.length === 0) return "";
+    // Assume first remaining token is the name
+    const nameToken = cleaned[0];
+    return nameToken
+      .toLowerCase()
+      .replace(/^\w/, (c) => c.toUpperCase());
   };
 
   const removeReport = (id: string) => {
@@ -57,7 +133,14 @@ export default function DietAIPlanPage() {
   };
 
   const analyzeReports = async () => {
-    if (uploadedReports.length === 0) return;
+    if (uploadedReports.length === 0) {
+      setUploadError("Please upload at least one valid medical document to continue.");
+      return;
+    }
+    if (!patientName.trim()) {
+      setUploadError("Please enter the patient's name before analysis.");
+      return;
+    }
 
     setIsAnalyzing(true);
     
@@ -134,6 +217,7 @@ export default function DietAIPlanPage() {
     setDietPlan([]);
     setHealthMetrics(null);
     setUploadedReports([]);
+    setPatientName("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -165,7 +249,7 @@ export default function DietAIPlanPage() {
               ref={fileInputRef}
               type="file"
               multiple
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              accept=".pdf,.jpg,.jpeg,.png"
               onChange={handleFileUpload}
               className="hidden"
               aria-label="Upload health reports"
@@ -181,6 +265,24 @@ export default function DietAIPlanPage() {
               Choose Files
             </button>
             <p className="mt-2 text-sm text-foreground/70">Upload prescription, lab reports, or medical documents</p>
+          </div>
+
+          {uploadError && (
+            <div className="rounded-lg border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 p-3 text-sm">
+              {uploadError}
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-foreground/70">Patient name</label>
+              <input
+                value={patientName}
+                onChange={(e) => setPatientName(e.target.value)}
+                placeholder="Enter patient's full name"
+                className="mt-1 w-full h-10 rounded-lg border border-black/[.08] dark:border-white/[.12] bg-background/60 px-3 text-sm"
+              />
+            </div>
           </div>
 
           {uploadedReports.length > 0 && (
@@ -278,7 +380,7 @@ export default function DietAIPlanPage() {
         <div className="mt-8">
           <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
             <Image src="/meal.svg" alt="diet" width={20} height={20} className="dark:invert" />
-            Your Personalized Diet Plan
+            {`Your Personalized Diet Plan${patientName ? ` for ${patientName}` : ""}`}
           </h2>
           <div className="grid gap-6">
             {dietPlan.map((meal, index) => (
@@ -325,8 +427,8 @@ export default function DietAIPlanPage() {
             <div className="flex items-start gap-3">
               <Image src="/shield.svg" alt="info" width={20} height={20} className="dark:invert mt-0.5" />
               <div>
-                <h4 className="font-medium text-blue-900 dark:text-blue-100">Important Notes</h4>
-                <ul className="mt-2 text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                <h4 className="font-medium text-black dark:text-white">Important Notes</h4>
+                <ul className="mt-2 text-sm text-black dark:text-white space-y-1">
                   <li>• This plan is based on your uploaded health reports and should be reviewed by your healthcare provider</li>
                   <li>• Monitor your blood glucose levels regularly and adjust portions as needed</li>
                   <li>• Stay hydrated and maintain regular physical activity</li>
