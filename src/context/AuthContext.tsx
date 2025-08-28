@@ -14,6 +14,8 @@ import {
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
+import { googleProvider } from "@/lib/firebase";
+import { signInWithPopup } from "firebase/auth";
 import { getFirebaseStorage } from "@/lib/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
@@ -33,6 +35,7 @@ type AuthContextValue = {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   updateUserProfile: (name?: string, photoFile?: File) => Promise<void>;
   signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -193,6 +196,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseSignOut(auth);
   };
 
+  const signInWithGoogle = async () => {
+    await signInWithPopup(auth, googleProvider);
+  };
+
   const value = useMemo<AuthContextValue>(() => ({
     user,
     loading,
@@ -202,6 +209,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithEmail,
     updateUserProfile,
     signOut,
+    signInWithGoogle,
   }), [user, loading]);
 
   return (
