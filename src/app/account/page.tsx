@@ -12,7 +12,6 @@ export default function AccountPage() {
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
-  const [phone, setPhone] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | undefined>(undefined);
   const [saved, setSaved] = useState(false);
@@ -40,7 +39,6 @@ export default function AccountPage() {
       if (storedData) {
         const userData = JSON.parse(storedData);
         setAge(userData.age || "");
-        setPhone(userData.phone || "");
       }
     } catch {}
     
@@ -84,7 +82,7 @@ export default function AccountPage() {
       setError(null);
       
       // Validate required fields
-      if (!name.trim() || !surname.trim() || !email.trim() || !age.trim() || !phone.trim()) {
+      if (!name.trim() || !surname.trim() || !email.trim() || !age.trim()) {
         setError("All fields are required");
         return;
       }
@@ -98,7 +96,6 @@ export default function AccountPage() {
         name: `${name} ${surname}`, 
         hasPhotoFile: !!photoFile,
         age,
-        phone
       });
       
       await updateUserProfile(`${name.trim()} ${surname.trim()}`, photoFile);
@@ -107,7 +104,6 @@ export default function AccountPage() {
       try {
         localStorage.setItem("dh_user_data", JSON.stringify({
           age: age.trim(),
-          phone: phone.trim(),
         }));
       } catch {}
       
@@ -210,18 +206,7 @@ export default function AccountPage() {
           />
         </div>
 
-        <div className="sm:col-span-2 grid gap-2">
-          <label htmlFor="phone" className="text-sm text-foreground/70">Phone Number *</label>
-          <input 
-            id="phone" 
-            type="tel" 
-            required 
-            placeholder="+91 9XXXXXXXXX" 
-            value={phone} 
-            onChange={(e) => setPhone(e.target.value)} 
-            className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30" 
-          />
-        </div>
+        
 
         <div className="sm:col-span-2 flex items-center gap-3">
           <button type="submit" disabled={saving} className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">

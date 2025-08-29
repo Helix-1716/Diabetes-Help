@@ -1,7 +1,7 @@
 "use client";
 
 import { initializeApp, getApps, FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, PhoneAuthProvider, browserLocalPersistence, setPersistence, type Auth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, browserLocalPersistence, setPersistence, type Auth } from "firebase/auth";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 import { getAnalytics, isSupported, type Analytics } from "firebase/analytics";
 
@@ -55,7 +55,6 @@ export function getFirebaseStorage(): FirebaseStorage {
 }
 
 export const googleProvider = new GoogleAuthProvider();
-export const phoneProvider = new PhoneAuthProvider(getFirebaseAuth());
 
 export async function initAnalytics(): Promise<Analytics | undefined> {
   try {

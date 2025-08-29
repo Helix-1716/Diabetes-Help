@@ -11,8 +11,6 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   reload,
-  signInWithPhoneNumber,
-  RecaptchaVerifier,
   signInWithRedirect,
   getRedirectResult,
   type User,
@@ -41,7 +39,6 @@ type AuthContextValue = {
   updateUserProfile: (name?: string, photoFile?: File) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  signInWithPhone: (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => Promise<any>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -248,27 +245,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, [auth]);
 
-  const signInWithPhone = async (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => {
-    try {
-      console.log("Starting phone sign-in process...");
-      console.log("Phone number:", phoneNumber);
-      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
-      console.log("Phone sign-in successful:", result.user.phoneNumber);
-      return result;
-    } catch (error: any) {
-      console.error("Phone sign-in failed:", error);
-      if (error.code === 'auth/invalid-phone-number') {
-        throw new Error("Invalid phone number format. Please enter a valid phone number.");
-      } else if (error.code === 'auth/too-many-requests') {
-        throw new Error("Too many requests. Please try again later.");
-      } else if (error.code === 'auth/network-request-failed') {
-        throw new Error("Network error. Please check your internet connection and try again.");
-      } else {
-        throw new Error(`Authentication failed: ${error.message || 'Unknown error occurred'}`);
-      }
-    }
-  };
-
   const value = useMemo<AuthContextValue>(() => ({
     user,
     loading,
@@ -279,7 +255,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUserProfile,
     signOut,
     signInWithGoogle,
-    signInWithPhone,
   }), [user, loading]);
 
   return (

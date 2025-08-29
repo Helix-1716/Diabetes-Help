@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -15,7 +16,6 @@ export default function LoginPage() {
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [age, setAge] = useState("");
-  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -103,7 +103,7 @@ export default function LoginPage() {
     setError(null); setMessage(null);
     
     // Validate required fields
-    if (!name.trim() || !surname.trim() || !email.trim() || !password.trim() || !age.trim() || !phone.trim()) {
+    if (!name.trim() || !surname.trim() || !email.trim() || !password.trim() || !age.trim()) {
       setError("All fields are required");
       return;
     }
@@ -228,18 +228,6 @@ export default function LoginPage() {
                   required 
                   value={age} 
                   onChange={(e) => setAge(e.target.value)} 
-                  className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30 w-full" 
-                />
-              </div>
-              <div>
-                <label className="text-sm text-foreground/70" htmlFor="phone">Phone Number *</label>
-                <input 
-                  id="phone" 
-                  type="tel" 
-                  required 
-                  value={phone} 
-                  onChange={(e) => setPhone(e.target.value)} 
-                  placeholder="+91 9XXXXXXXXX"
                   className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30 w-full" 
                 />
               </div>

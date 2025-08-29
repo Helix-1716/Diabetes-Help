@@ -84,7 +84,9 @@ export default function OtpInput({
         {digits.map((d, i) => (
           <input
             key={i}
-            ref={(el) => (inputsRef.current[i] = el)}
+            ref={(el) => {
+              inputsRef.current[i] = el;
+            }}
             inputMode="numeric"
             pattern="[0-9]*"
             autoComplete="one-time-code"
