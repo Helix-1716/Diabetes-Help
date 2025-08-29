@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import RouteProgress from "@/components/RouteProgress";
 import { AuthProvider } from "@/context/AuthContext";
 import Image from "next/image";
+import DiabetesHelpLogo from "@/Images/DiabetesHelp-Logo.png";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,6 +22,26 @@ export const metadata: Metadata = {
   title: "DiabetesHelp",
   description: "Tools, guidance, and education for diabetes management.",
   metadataBase: new URL("https://diabeteshelp.local"),
+  icons: [
+    {
+      rel: 'icon',
+      url: '/logo.png',
+      sizes: 'any',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      url: '/logo.png',
+    },
+    {
+      rel: 'shortcut icon',
+      url: '/logo.png',
+    },
+    {
+      rel: 'apple-touch-icon',
+      url: '/logo.png',
+    },
+  ],
   openGraph: {
     title: "DiabetesHelp",
     description: "Tools, guidance, and education for diabetes management.",
@@ -36,6 +57,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+     
       <body className={`${inter.variable} ${geistMono.variable} antialiased selection:bg-primary/20 selection:text-primary`}>
         <AuthProvider>
           <RouteProgress />
@@ -43,7 +65,7 @@ export default function RootLayout({
           <Navbar />
           <div className="mx-auto max-w-6xl px-4 sm:px-6 mt-2">
             <div className="flex items-center">
-              <Image src="/sugar.svg" alt="Sugar health logo" width={36} height={36} className="dark:invert-0" />
+              <Image src={DiabetesHelpLogo} alt="DiabetesHelp logo" width={36} height={36} className="dark:invert" />
               <div className="text-sm text-foreground/70 hidden sm:block">Care for sugar patients</div>
             </div>
           </div>
