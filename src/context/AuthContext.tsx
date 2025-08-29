@@ -197,7 +197,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    await signInWithPopup(auth, googleProvider);
+    try {
+      console.log("Starting Google sign-in process...");
+      console.log("Current domain:", window.location.hostname);
+      console.log("Firebase auth domain:", auth.config.authDomain);
+      
+      const result = await signInWithPopup(auth, googleProvider);
+      console.log("Google sign-in successful:", result.user.email);
+    } catch (error: any) {
+      console.error("Google sign-in failed:", error);
+      
+      // Provide more specific error messages for common issues
+      if (error.code === 'auth/unauthorized-domain') {
+        throw new Error(`Authentication failed: Domain ${window.location.hostname} is not authorized. Please contact support.`);
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        throw new Error("Sign-in was cancelled. Please try again.");
+      } else if (error.code === 'auth/popup-blocked') {
+        throw new Error("Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.");
+      } else if (error.code === 'auth/network-request-failed') {
+        throw new Error("Network error. Please check your internet connection and try again.");
+      } else {
+        throw new Error(`Authentication failed: ${error.message || 'Unknown error occurred'}`);
+      }
+    }
   };
 
   const value = useMemo<AuthContextValue>(() => ({
