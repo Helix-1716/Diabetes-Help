@@ -11,6 +11,10 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   reload,
+  signInWithPhoneNumber,
+  RecaptchaVerifier,
+  signInWithRedirect,
+  getRedirectResult,
   type User,
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
@@ -24,6 +28,7 @@ type AuthUser = {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  phoneNumber: string | null;
 };
 
 type AuthContextValue = {
@@ -36,6 +41,7 @@ type AuthContextValue = {
   updateUserProfile: (name?: string, photoFile?: File) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithPhone: (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => Promise<any>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -64,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
+          phoneNumber: firebaseUser.phoneNumber || null,
         };
         setUser(mapped);
         try {
@@ -169,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: refreshed.email,
           displayName: refreshed.displayName,
           photoURL: refreshed.photoURL,
+          phoneNumber: refreshed.phoneNumber || null,
         };
         console.log("Updated user data:", mapped);
         setUser(mapped);
@@ -201,19 +209,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Starting Google sign-in process...");
       console.log("Current domain:", window.location.hostname);
       console.log("Firebase auth domain:", auth.config.authDomain);
-      
+
+      // Prefer popup when supported
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google sign-in successful:", result.user.email);
     } catch (error: any) {
-      console.error("Google sign-in failed:", error);
-      
-      // Provide more specific error messages for common issues
+      console.error("Google sign-in failed (popup):", error);
+
+      // Fallback to redirect when popup isn't supported or blocked
+      if (error?.code === 'auth/operation-not-supported-in-this-environment' || error?.code === 'auth/auth-domain-config-required') {
+        console.log("Falling back to signInWithRedirect...");
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+
       if (error.code === 'auth/unauthorized-domain') {
         throw new Error(`Authentication failed: Domain ${window.location.hostname} is not authorized. Please contact support.`);
       } else if (error.code === 'auth/popup-closed-by-user') {
         throw new Error("Sign-in was cancelled. Please try again.");
       } else if (error.code === 'auth/popup-blocked') {
         throw new Error("Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.");
+      } else if (error.code === 'auth/network-request-failed') {
+        throw new Error("Network error. Please check your internet connection and try again.");
+      } else {
+        throw new Error(`Authentication failed: ${error.message || 'Unknown error occurred'}`);
+      }
+    }
+  };
+
+  // After mounting, attempt to resolve any pending redirect result (no-op if none)
+  useEffect(() => {
+    (async () => {
+      try {
+        await getRedirectResult(auth);
+      } catch (e) {
+        // ignore; onAuthStateChanged will handle state
+      }
+    })();
+  }, [auth]);
+
+  const signInWithPhone = async (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => {
+    try {
+      console.log("Starting phone sign-in process...");
+      console.log("Phone number:", phoneNumber);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+      console.log("Phone sign-in successful:", result.user.phoneNumber);
+      return result;
+    } catch (error: any) {
+      console.error("Phone sign-in failed:", error);
+      if (error.code === 'auth/invalid-phone-number') {
+        throw new Error("Invalid phone number format. Please enter a valid phone number.");
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error("Too many requests. Please try again later.");
       } else if (error.code === 'auth/network-request-failed') {
         throw new Error("Network error. Please check your internet connection and try again.");
       } else {
@@ -232,6 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateUserProfile,
     signOut,
     signInWithGoogle,
+    signInWithPhone,
   }), [user, loading]);
 
   return (

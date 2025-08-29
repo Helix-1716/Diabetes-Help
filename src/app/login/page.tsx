@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from "firebase/auth";
-import { getFirebaseAuth } from "@/lib/firebase";
+import { } from "firebase/auth";
+import { } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, loading, sendEmailLink, completeEmailLinkSignIn, signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuth();
-  const [mode, setMode] = useState<"phone" | "emailPassword" | "signUp">("signUp");
+  const { user, loading, signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuth();
+  const [mode, setMode] = useState<"emailPassword" | "signUp">("signUp");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -19,12 +19,9 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [otpPhase, setOtpPhase] = useState<"idle" | "codeSent" | "verifying">("idle");
-  const [otp, setOtp] = useState("");
-  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
-  const [timeLeft, setTimeLeft] = useState(0);
-  const recaptchaRef = useRef<RecaptchaVerifier | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  // Phone auth state removed
 
   useEffect(() => {
     if (!loading && user) {
@@ -32,177 +29,77 @@ export default function LoginPage() {
     }
   }, [user, loading, router]);
 
-  // Initialize reCAPTCHA verifier following Firebase docs
-  const initializeRecaptcha = () => {
-    const auth = getFirebaseAuth();
-    if (!recaptchaRef.current) {
-      recaptchaRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': () => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber
-          handlePhoneSignIn();
-        },
-        'expired-callback': () => {
-          // Response expired, reset
-          setError("reCAPTCHA expired. Please try again.");
-          resetRecaptcha();
-        }
-      });
-    }
-    return recaptchaRef.current;
-  };
+  // Phone auth helpers removed
 
-  const resetRecaptcha = () => {
-    if (recaptchaRef.current) {
-      try {
-        recaptchaRef.current.clear();
-        recaptchaRef.current = null;
-      } catch (e) {
-        console.error("Error clearing reCAPTCHA:", e);
-      }
-    }
-  };
+  // Phone auth helpers removed
 
-  const startTimer = () => {
-    setTimeLeft(40);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
+  // Phone auth helpers removed
 
-  const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  };
+  // Phone auth removed
 
-  const handlePhoneSignIn = async () => {
-    setError(null); setMessage(null);
-    
-    // Validate phone number
-    if (!phone.trim()) {
-      setError("Please enter a valid phone number");
-      return;
-    }
-    
-    try {
-      const auth = getFirebaseAuth();
-      const appVerifier = recaptchaRef.current;
-      if (!appVerifier) throw new Error("reCAPTCHA not initialized");
-      
-      const result = await signInWithPhoneNumber(auth, phone, appVerifier);
-      setConfirmation(result);
-      setOtpPhase("codeSent");
-      setMessage("Verification code sent to your phone.");
-      startTimer();
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error?.message || "Failed to send verification code");
-      resetRecaptcha();
-    }
-  };
+  // Phone auth removed
 
-  // Two-step verification via SMS (start)
-  const startPhoneVerification = async () => {
-    setError(null); setMessage(null);
-    
-    // Validate phone number first
-    if (!phone.trim()) {
-      setError("Please enter a valid phone number");
-      return;
-    }
-    
-    try {
-      const verifier = initializeRecaptcha();
-      await verifier.render();
-      // The callback will handle the actual sign-in
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error?.message || "Failed to initialize reCAPTCHA");
-    }
-  };
+  // Phone auth removed
 
-  const resendOTP = async () => {
-    setError(null);
-    
-    // Validate phone number first
-    if (!phone.trim()) {
-      setError("Please enter a valid phone number");
-      return;
-    }
-    
-    try {
-      resetRecaptcha();
-      const verifier = initializeRecaptcha();
-      await verifier.render();
-      // The callback will handle the actual sign-in
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error?.message || "Failed to resend OTP");
-    }
-  };
+  // Phone auth removed
 
-  const verifyOtp = async () => {
-    if (!confirmation) return;
-    setOtpPhase("verifying");
-    setError(null);
-    try {
-      await confirmation.confirm(otp);
-      stopTimer();
-      router.replace("/");
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error?.message || "Invalid verification code");
-      setOtpPhase("codeSent");
-    }
-  };
+  // removed magic link flow
 
-  const onSendLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null); setMessage(null);
-    try {
-      await sendEmailLink(email);
-      setMessage("Magic sign-in link sent. Check your email.");
-    } catch (err: unknown) {
-      const error = err as { message?: string };
-      setError(error?.message || "Failed to send email link");
-    }
+  // Add a timeout wrapper to surface friendly timeout errors
+  const withTimeout = async <T,>(promise: Promise<T>, ms = 20000): Promise<T> => {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms)) as Promise<T>,
+    ]);
   };
 
   // Google sign in
   const onGoogle = async () => {
+    if (isGoogleLoading) return;
     setError(null); setMessage(null);
     try {
-      await signInWithGoogle();
+      setIsGoogleLoading(true);
+      await withTimeout(signInWithGoogle());
       router.replace("/");
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error?.message || "Failed to sign in with Google");
+      const msg = (error?.message || "").toLowerCase();
+      if (msg.includes("timeout") || msg.includes("deadline") || msg.includes("network")) {
+        setError("Request timed out. Please check your connection and try again.");
+      } else {
+        setError(error?.message || "Failed to sign in with Google");
+      }
     }
+    setIsGoogleLoading(false);
   };
 
   const onSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError(null); setMessage(null);
+    if (!email || !password) {
+      setError("Please enter your email and password.");
+      return;
+    }
     try {
-      await signInWithEmail(email, password);
+      setIsSubmitting(true);
+      await withTimeout(signInWithEmail(email, password));
       router.replace("/");
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error?.message || "Failed to sign in");
+      const msg = (error?.message || "").toLowerCase();
+      if (msg.includes("timeout") || msg.includes("deadline") || msg.includes("network")) {
+        setError("Request timed out. Please try again.");
+      } else {
+        setError(error?.message || "Failed to sign in");
+      }
     }
+    setIsSubmitting(false);
   };
 
   const onSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError(null); setMessage(null);
     
     // Validate required fields
@@ -215,26 +112,36 @@ export default function LoginPage() {
       setError("Please enter a valid age (1-120)");
       return;
     }
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
 
     try {
       const fullName = `${name.trim()} ${surname.trim()}`;
-      await signUpWithEmail(email, password, fullName);
+      setIsSubmitting(true);
+      await withTimeout(signUpWithEmail(email, password, fullName));
       setMessage("Account created successfully! You are now signed in.");
       setTimeout(() => {
         router.replace("/account");
       }, 1500);
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error?.message || "Failed to sign up");
+      const msg = (error?.message || "").toLowerCase();
+      if (msg.includes("timeout") || msg.includes("deadline") || msg.includes("network")) {
+        setError("Request timed out. Please try again.");
+      } else if (msg.includes("email")) {
+        setError("This email may already be in use or invalid.");
+      } else {
+        setError(error?.message || "Failed to sign up");
+      }
     }
+    setIsSubmitting(false);
   };
 
   // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      stopTimer();
-      resetRecaptcha();
-    };
+    return () => {};
   }, []);
 
   return (
@@ -242,8 +149,8 @@ export default function LoginPage() {
       <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Welcome to DiabetesHelp</h1>
       <p className="mt-2 text-foreground/80">Create your account to get started.</p>
 
-      <div className="mt-6 rounded-2xl border border-black/[.06] dark:border-white/[.08] p-4 sm:p-6">
-        <div className="flex gap-2 mb-6">
+      <div className="mt-6 rounded-2xl border border-black/[.06] dark:border-white/[.08] p-5 sm:p-6 shadow-sm bg-background/60">
+        <div className="flex gap-2 mb-5">
           <button
             className={`px-3 py-1.5 rounded-lg text-sm ${mode === "signUp" ? "bg-primary text-primary-foreground" : "bg-black/[.04] dark:bg-white/[.06]"}`}
             onClick={() => setMode("signUp")}
@@ -252,18 +159,16 @@ export default function LoginPage() {
             className={`px-3 py-1.5 rounded-lg text-sm ${mode === "emailPassword" ? "bg-primary text-primary-foreground" : "bg-black/[.04] dark:bg-white/[.06]"}`}
             onClick={() => setMode("emailPassword")}
           >Sign In</button>
-          <button
-            className={`px-3 py-1.5 rounded-lg text-sm ${mode === "phone" ? "bg-primary text-primary-foreground" : "bg-black/[.04] dark:bg-white/[.06]"}`}
-            onClick={() => setMode("phone")}
-          >Sign In with Phone</button>
+          
         </div>
 
         {/* Social sign in */}
-        <div className="mb-4">
+        <div className="mb-5">
           <button
             type="button"
             onClick={onGoogle}
-            className="w-full h-11 rounded-full border border-black/[.08] dark:border-white/[.12] bg-white dark:bg-background/60 text-sm font-medium flex items-center justify-center gap-2 hover:bg-black/[.02]"
+            disabled={isGoogleLoading}
+            className="w-full h-11 rounded-full border border-black/[.08] dark:border-white/[.12] bg-white dark:bg-background/60 text-sm font-medium flex items-center justify-center gap-2 hover:bg-black/[.02] disabled:opacity-60"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="size-5">
               <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 6 .8 8.2 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 19.5-8.9 19.5-20c0-1.1-.1-2.1-.3-3.1z"/>
@@ -271,7 +176,7 @@ export default function LoginPage() {
               <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.3-5.2l-6.1-5.1C29 35.2 26.6 36 24 36c-5.2 0-9.6-3.6-11.2-8.5l-6.5 5C9.9 39.6 16.3 44 24 44z"/>
               <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.3 3.3-4.6 5.5-8.3 5.5-5.2 0-9.6-3.6-11.2-8.5l-6.5 5C9.9 39.6 16.3 44 24 44c11.1 0 19.5-8.9 19.5-20 0-1.1-.1-2.1-.3-3.1z"/>
             </svg>
-            Continue with Google
+            {isGoogleLoading ? "Signing in..." : "Continue with Google"}
           </button>
         </div>
 
@@ -337,7 +242,6 @@ export default function LoginPage() {
                   placeholder="+91 9XXXXXXXXX"
                   className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30 w-full" 
                 />
-                <div id="recaptcha-container" />
               </div>
             </div>
 
@@ -375,33 +279,8 @@ export default function LoginPage() {
             </div>
 
             <div className="grid gap-2 mt-2">
-              {otpPhase === "idle" && (
-                <button type="button" onClick={startPhoneVerification} className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium">
-                  Send verification code
-                </button>
-              )}
-              {otpPhase !== "idle" && (
-                <div className="grid gap-3">
-                  <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
-                    <input
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="Enter OTP"
-                      className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none"
-                    />
-                    <button type="button" onClick={verifyOtp} disabled={otpPhase === "verifying"} className="rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium">
-                      {otpPhase === "verifying" ? "Verifying..." : "Verify"}
-                    </button>
-                  </div>
-                  {timeLeft > 0 ? (
-                    <div className="text-xs text-foreground/60 text-center">Resend OTP in {timeLeft}s</div>
-                  ) : (
-                    <button type="button" onClick={resendOTP} className="rounded-full border border-black/[.08] dark:border-white/[.12] h-11 px-6 text-sm font-medium">Send new OTP</button>
-                  )}
-                </div>
-              )}
-              <button type="submit" className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium">
-                Create Account
+              <button type="submit" disabled={isSubmitting} className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium disabled:opacity-60">
+                {isSubmitting ? "Creating..." : "Create Account"}
               </button>
             </div>
           </form>
@@ -410,7 +289,7 @@ export default function LoginPage() {
         {mode === "emailPassword" && (
           <form onSubmit={onSignIn} className="grid gap-3">
             <label className="text-sm text-foreground/70" htmlFor="email2">Email</label>
-            <input id="email2" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30" />
+            <input id="email2" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30" />
             <label className="text-sm text-foreground/70" htmlFor="password1">Password</label>
             <div className="relative">
               <input
@@ -419,6 +298,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 pr-10 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30 w-full"
               />
               <button
@@ -441,35 +321,11 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
-            <button type="submit" className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium mt-1">Sign in</button>
+            <button type="submit" disabled={isSubmitting} className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium mt-1 disabled:opacity-60">{isSubmitting ? "Signing in..." : "Sign in"}</button>
           </form>
         )}
 
-        {mode === "phone" && (
-          <div className="grid gap-3">
-            <label className="text-sm text-foreground/70" htmlFor="phoneLogin">Phone Number</label>
-            <input id="phoneLogin" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 9XXXXXXXXX" className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none focus:ring-2 focus:ring-primary/30" />
-            <div id="recaptcha-container" />
-            {otpPhase === "idle" && (
-              <button type="button" onClick={startPhoneVerification} className="btn-shine rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium">
-                Send OTP
-              </button>
-            )}
-            {otpPhase !== "idle" && (
-              <div className="grid gap-3">
-                <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
-                  <input value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter OTP" className="rounded-xl border border-black/[.08] dark:border-white/[.12] bg-background/60 px-4 h-11 outline-none" />
-                  <button type="button" onClick={verifyOtp} disabled={otpPhase === "verifying"} className="rounded-full bg-primary text-primary-foreground h-11 px-6 text-sm font-medium">{otpPhase === "verifying" ? "Verifying..." : "Verify"}</button>
-                </div>
-                {timeLeft > 0 ? (
-                  <div className="text-xs text-foreground/60 text-center">Resend OTP in {timeLeft}s</div>
-                ) : (
-                  <button type="button" onClick={resendOTP} className="rounded-full border border-black/[.08] dark:border-white/[.12] h-11 px-6 text-sm font-medium">Send new OTP</button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+        
 
         {message && <div className="mt-4 text-sm text-green-600">{message}</div>}
         {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
